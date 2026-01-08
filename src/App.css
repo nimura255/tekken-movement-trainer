@@ -1,0 +1,24 @@
+:root {
+  --text-primary: #ffffff;
+  --success-green: #10b981;
+  --accent-cyan: #06b6d4;
+  --primary-violet: #8b5cf6;
+  --secondary-violet: #a855f7;
+  --light-violet: #c4b5fd;
+  --bg-secondary: #1a1a2e;
+  --error-red: #ef4444;
+  --warning-orange: #f59e0b;
+
+  --glow-primary: 0 0 30px var(--primary-violet), 0 0 60px rgba(139, 92, 246, 0.3);
+  --glow-accent: 0 0 25px var(--accent-cyan), 0 0 50px rgba(6, 182, 212, 0.2);
+  --glow-success: 0 0 25px var(--success-green), 0 0 50px rgba(16, 185, 129, 0.2);
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  font-family: Roboto, sans-serif;
+}
+

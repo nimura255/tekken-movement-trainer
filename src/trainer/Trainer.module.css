@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid white;
+  border-radius: 12px;
+}
+
+.statItemLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.accuracyStatItem {
+  flex-grow: 1;
+}
+
+.bar {
+  height: 10px;
+  width: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--error-red), var(--warning-orange), var(--success-green));
+}

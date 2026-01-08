@@ -1,0 +1,29 @@
+.container {
+  width: 65px;
+  height: 65px;
+  border-width: 2px;
+  border-radius: 14px;
+  border-style: solid;
+  background: black;
+  border-color: rgba(139, 92, 246, 0.3);
+  background: var(--bg-secondary);
+}
+
+.complete {
+   color: var(--text-primary);
+   box-shadow: var(--glow-success), 0 8px 25px rgba(16, 185, 129, 0.3);
+   transform: scale(1.03);
+   background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+   border-color: rgb(52, 211, 153);
+ }
+
+.current {
+  color: var(--text-primary);
+  box-shadow: var(--glow-primary), 0 10px 30px rgba(139, 92, 246, 0.4);
+  /*transform: scale(1.1) translateY(-3px);*/
+  background: linear-gradient(135deg, var(--primary-violet) 0%, var(--secondary-violet) 100%);
+  border-color: var(--light-violet);
+  animation: 2s ease-in-out 0s infinite normal none running pulse-glow;
+}
+
+.neutral {}
