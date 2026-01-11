@@ -12,6 +12,9 @@
   --glow-primary: 0 0 30px var(--primary-violet), 0 0 60px rgba(139, 92, 246, 0.3);
   --glow-accent: 0 0 25px var(--accent-cyan), 0 0 50px rgba(6, 182, 212, 0.2);
   --glow-success: 0 0 25px var(--success-green), 0 0 50px rgba(16, 185, 129, 0.2);
+
+  background: #0d1b26;
+  background: radial-gradient(circle,rgba(47, 61, 81, 1) 0%, rgba(13, 27, 38, 1) 100%);
 }
 
 #root {

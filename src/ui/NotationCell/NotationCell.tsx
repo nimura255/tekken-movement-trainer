@@ -1,5 +1,6 @@
 import back from '$/assets/b.png';
 import downBack from '$/assets/db.png';
+import down from '$/assets/d.png';
 import downForward from '$/assets/df.png';
 import forward from '$/assets/f.png';
 import neutral from '$/assets/n.png';
@@ -19,6 +20,7 @@ type NotationCellProps = {
 const directionToIconMap: Partial<Record<DirectionInput, string>> = {
   b: back,
   db: downBack,
+  d: down,
   df: downForward,
   f: forward,
   n: neutral,
@@ -27,6 +29,7 @@ const directionToIconMap: Partial<Record<DirectionInput, string>> = {
 const directionToCharMap: Partial<Record<DirectionInput, string>> = {
   b: '←',
   db: '↙',
+  d: '↓',
   df: '↘',
   f: '→',
   n: '★'

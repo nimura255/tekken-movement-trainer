@@ -1,0 +1,55 @@
+.container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-top: 4px solid transparent;
+  box-sizing: border-box;
+  transform: translateX(-50%);
+}
+
+.container:before {
+  content: ' ';
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  margin: 0;
+}
+
+.container_default {
+  background: #172233;
+  background: radial-gradient(circle at top, #0B4D91FF 0%, #172233 48%);
+}
+
+.container_default > .title {
+  color: #aacef9;
+}
+
+.container_default:before {
+  background: #90e6ed;
+  background: linear-gradient(90deg, transparent 0%, rgba(144, 230, 237, 1) 50%, transparent 100%);
+}
+
+.container_error {
+  background: #172233;
+  background: radial-gradient(circle at top, #672443 0%, #172233 48%);
+}
+
+.container_error:before {
+  background: #b84760;
+  background: linear-gradient(90deg, transparent 0%, #b84760 50%, transparent 100%);
+}
+
+.container_error > .title {
+  color: #ff2563;
+}

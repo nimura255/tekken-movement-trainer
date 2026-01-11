@@ -9,7 +9,7 @@ export function classNames(...classNamesList: (string | Record<string, boolean> 
     if (typeof item === 'object' && item !== null) {
       for (const objKey in item) {
         if (item[objKey]) {
-          result += ' ' + item[objKey];
+          result += ' ' + objKey;
         }
       }
     }

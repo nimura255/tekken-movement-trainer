@@ -2,18 +2,41 @@ import {useEffect, useRef, useCallback, useState} from "react";
 import {MovementManager} from '$/movement-manager';
 import type {DirectionInput} from '$/types';
 import {NotationSequence} from '$/ui/NotationSequence';
-import {classNames} from '$/utils/classNames';
+import {CountdownModal} from '$/ui/CoundownModal';
+import {StatsBlock} from './StatsBlock';
 import styles from './Trainer.module.css';
+import {PlaybackButtons} from './PlaybackButtons.tsx';
 
-const currentSequence: DirectionInput[] = ['b', 'n', 'b', 'db'];
+enum MovementSequenceKey {
+  KbdLeft = 'kbd-l',
+  KbdRight = 'kbd-r',
+  WaveDashLeft = 'wavu-l',
+  WaveDashRight = 'wavu-r',
+}
+
+const movementSequencesMap: Record<MovementSequenceKey, DirectionInput[]> = {
+  [MovementSequenceKey.KbdLeft]: ['b', 'n', 'b', 'db'],
+  [MovementSequenceKey.KbdRight]: ['f', 'n', 'f', 'df'],
+  [MovementSequenceKey.WaveDashLeft]: ['f', 'n', 'd', 'df', 'f', 'n'],
+  [MovementSequenceKey.WaveDashRight]: ['b', 'n', 'd', 'db', 'b', 'n']
+};
+
+const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> = [
+  {key: MovementSequenceKey.KbdLeft, title: 'Korean Backdash (Left)'},
+  {key: MovementSequenceKey.KbdRight, title: 'Korean Backdash (Right)'},
+  {key: MovementSequenceKey.WaveDashLeft, title: 'Wavedash (Left)'},
+  {key: MovementSequenceKey.WaveDashRight, title: 'Wavedash (Right)'},
+];
 
 export function Trainer() {
   const movementManagerRef = useRef(new MovementManager());
-  const [movesSequence] = useState(currentSequence);
   const [moveIndex, setMoveIndex] = useState(0);
   const [correctMoves, setCorrectMoves] = useState(0);
   const [totalMoves, setTotalMoves] = useState(0);
   const [trainingSessionState, setTrainingSessionState] = useState<'idle' | 'paused' |  'running'>('idle')
+
+  const [selectedSequenceKey, setSelectedSequenceKey] = useState(MovementSequenceKey.KbdLeft);
+  const movesSequence = movementSequencesMap[selectedSequenceKey];
 
   const [animationData, setAnimationData] = useState<undefined | {
     key: 'start' | 'restart-after-mistake';
@@ -78,150 +101,54 @@ export function Trainer() {
 
   return (
     <div className={styles.container}>
-      <NotationSequence sequence={movesSequence} currentCellIndex={moveIndex} />
+      <select
+        value={selectedSequenceKey}
+        onChange={event => setSelectedSequenceKey(event.target.value as MovementSequenceKey)}
+      >
+        {movementSequencesMetas.map(({key, title}) => (
+          <option key={key} value={key}>{title}</option>
+        ))}
+      </select>
+
+      <NotationSequence
+        sequence={movesSequence}
+        currentCellIndex={trainingSessionState === 'running' ? moveIndex : undefined}
+      />
       <StatsBlock correct={correctMoves} total={totalMoves} />
 
       <div style={{display: 'flex', gap: '10px'}}>
         {animationData?.key === 'restart-after-mistake' && (
-          <ErrorAnimationBanner onFinish={animationData.callback} />
+          <CountdownModal
+            onCountdownFinish={animationData.callback}
+            countdownSeconds={3}
+            text="Restart in"
+            title="Wrong input"
+            variant="error"
+          />
         )}
 
-        {trainingSessionState === 'idle' && (
-          <button onClick={() => {
+        <PlaybackButtons
+          trainerState={trainingSessionState}
+          onStart={() => {
             setMoveIndex(0);
             setTrainingSessionState('running');
-          }}>
-            START
-          </button>
-        )}
-
-        {trainingSessionState === 'paused' && (
-          <button onClick={() => setTrainingSessionState('running')}>
-            RESUME
-          </button>
-        )}
-
-        {trainingSessionState === 'running' && (
-          <button onClick={() => setTrainingSessionState('idle')}>
-            PAUSE
-          </button>
-        )}
-
-        {trainingSessionState !== 'idle' && (
-          <>
-            <button onClick={() => {
-              setMoveIndex(0);
-              setCorrectMoves(0);
-              setTotalMoves(0);
-              setTrainingSessionState('running');
-            }}>
-              RESTART
-            </button>
-
-            <button onClick={() => {
-              setMoveIndex(0);
-              setCorrectMoves(0);
-              setTotalMoves(0);
-              setTrainingSessionState('idle');
-            }}>
-              STOP
-            </button>
-          </>
-        )}
+          }}
+          onResume={() => setTrainingSessionState('running')}
+          onPause={() => setTrainingSessionState('idle')}
+          onReset={() => {
+            setMoveIndex(0);
+            setCorrectMoves(0);
+            setTotalMoves(0);
+            setTrainingSessionState('running');
+          }}
+          onStop={() => {
+            setMoveIndex(0);
+            setCorrectMoves(0);
+            setTotalMoves(0);
+            setTrainingSessionState('idle');
+          }}
+        />
       </div>
     </div>
   );
 }
-
-type StatsBlockProps = {
-  total: number;
-  correct: number;
-}
-
-function StatsBlock({correct, total}: StatsBlockProps) {
-  const accuracy = calcAccuracy(correct, total);
-
-  return (
-    <div className={styles.statsContainer}>
-      <div className={classNames(styles.statItem, styles.accuracyStatItem)}>
-        <span className={styles.statItemLabel}>Accuracy</span>
-        <span>{accuracy}%</span>
-        <div className={styles.bar} />
-      </div>
-      <div className={styles.statItem}>
-        <span className={styles.statItemLabel}>Total</span>
-        <span>{total}</span>
-      </div>
-      <div className={styles.statItem}>
-        <span className={styles.statItemLabel}>Correct</span>
-        <span>{correct}</span>
-      </div>
-    </div>
-  );
-}
-
-function calcAccuracy(correct: number, total: number) {
-  if (!total) {
-    return 100;
-  }
-
-  return Math.trunc((correct / total) * 100);
-}
-
-function ErrorAnimationBanner({ onFinish }: {onFinish: () => void}) {
-  const [countdown, setCountDown] = useState(3);
-  const timerIdRef = useRef(0);
-
-  const timerCallback = useCallback(() => {
-    if (countdown === 1) {
-      setCountDown(0);
-      onFinish();
-    } else if (countdown > 1) {
-      setCountDown(countdown - 1);
-      timerIdRef.current = setTimeout(() => {
-        timerCallbackRef.current();
-      }, 1000);
-    }
-  }, [countdown, onFinish]);
-
-  const timerCallbackRef = useRef(timerCallback);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/immutability
-    timerCallbackRef.current = timerCallback;
-  }, [timerCallback]);
-
-  useEffect(() => {
-    timerIdRef.current = setTimeout(() => {
-      timerCallbackRef.current();
-    }, 1000);
-
-    return () => {
-      clearTimeout(timerIdRef.current);
-    }
-  }, [])
-
-  return (
-    <div>
-      <div>Restart in</div>
-      <div>{countdown}</div>
-    </div>
-  )
-}
-
-/*
-
-press start
-  |
-countdown animation
-  |
-run training
-  |
- ...
-  |
-make a mistake
-  |
-error animation, countdown
-  |
-run training
-
- */
