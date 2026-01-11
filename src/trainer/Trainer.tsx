@@ -1,61 +1,71 @@
-import {useEffect, useRef, useCallback, useReducer, useState} from "react";
+import {useEffect, useRef, useCallback, useState} from "react";
 import {MovementManager} from '$/movement-manager';
 import type {DirectionInput} from '$/types';
 import {NotationSequence} from '$/ui/NotationSequence';
 import {classNames} from '$/utils/classNames';
 import styles from './Trainer.module.css';
 
-type TrainerState = {
-  total: number;
-  correct: number;
-  currentIndex: number;
-};
-
-type TrainerStateStartAction = {
-  type: 'start';
-}
-
-type TrainerStateMoveAction = {
-  type: 'move';
-  payload: {
-    movesSequence: DirectionInput[];
-    move: DirectionInput;
-  };
-};
-
-type TrainerStateAction = TrainerStateStartAction | TrainerStateMoveAction;
-
 const currentSequence: DirectionInput[] = ['b', 'n', 'b', 'db'];
-
-const initialTrainerState: TrainerState = {
-  total: 0,
-  correct: 0,
-  currentIndex: 0
-};
 
 export function Trainer() {
   const movementManagerRef = useRef(new MovementManager());
-  const [state, dispatch] = useReducer(trainerStateReducer, initialTrainerState);
   const [movesSequence] = useState(currentSequence);
+  const [moveIndex, setMoveIndex] = useState(0);
+  const [correctMoves, setCorrectMoves] = useState(0);
+  const [totalMoves, setTotalMoves] = useState(0);
+  const [trainingSessionState, setTrainingSessionState] = useState<'idle' | 'paused' |  'running'>('idle')
+
+  const [animationData, setAnimationData] = useState<undefined | {
+    key: 'start' | 'restart-after-mistake';
+    callback: () => void;
+  }>(undefined);
+
+  const playAnimation = useCallback((key: 'start' | 'restart-after-mistake', callback: () => void) => {
+    setAnimationData({
+      key,
+      callback: () => {
+        setAnimationData(undefined);
+        callback();
+      }
+    });
+  }, []);
 
   const handleMoveChange = useCallback((move: DirectionInput) => {
-    dispatch({
-      type: 'move',
-      payload: {
-        move,
-        movesSequence: movesSequence
-      }
-    })
-  }, [movesSequence]);
-  const handleMoveChangeRef = useRef(handleMoveChange);
+    if (trainingSessionState !== 'running' || animationData) {
+      return;
+    }
 
+    setTotalMoves(count => count + 1);
+
+    if (move !== movesSequence[moveIndex]) {
+      setMoveIndex(0);
+
+      playAnimation('restart-after-mistake', () => {
+        setTrainingSessionState('running');
+        setMoveIndex(0);
+      })
+      return;
+    }
+
+    setCorrectMoves(count => count + 1);
+
+    if (moveIndex < movesSequence.length - 1) {
+      setMoveIndex(count => count + 1);
+    } else {
+      setMoveIndex(0);
+    }
+  }, [animationData, moveIndex, movesSequence, playAnimation, trainingSessionState]);
+
+  const handleMoveChangeRef = useRef(handleMoveChange);
   useEffect(() => {
     handleMoveChangeRef.current = handleMoveChange;
   }, [handleMoveChange]);
 
   useEffect(() => {
     const movementManager = movementManagerRef.current;
-    const onMoveChange = handleMoveChangeRef.current;
+    const onMoveChange = (move: DirectionInput) => {
+      handleMoveChangeRef.current(move);
+    };
 
     movementManager.init();
     movementManager.subscribeToMove(onMoveChange);
@@ -68,46 +78,59 @@ export function Trainer() {
 
   return (
     <div className={styles.container}>
-      <NotationSequence sequence={movesSequence} currentCellIndex={state.currentIndex} />
-      <StatsBlock correct={state.correct} total={state.total} />
+      <NotationSequence sequence={movesSequence} currentCellIndex={moveIndex} />
+      <StatsBlock correct={correctMoves} total={totalMoves} />
+
+      <div style={{display: 'flex', gap: '10px'}}>
+        {animationData?.key === 'restart-after-mistake' && (
+          <ErrorAnimationBanner onFinish={animationData.callback} />
+        )}
+
+        {trainingSessionState === 'idle' && (
+          <button onClick={() => {
+            setMoveIndex(0);
+            setTrainingSessionState('running');
+          }}>
+            START
+          </button>
+        )}
+
+        {trainingSessionState === 'paused' && (
+          <button onClick={() => setTrainingSessionState('running')}>
+            RESUME
+          </button>
+        )}
+
+        {trainingSessionState === 'running' && (
+          <button onClick={() => setTrainingSessionState('idle')}>
+            PAUSE
+          </button>
+        )}
+
+        {trainingSessionState !== 'idle' && (
+          <>
+            <button onClick={() => {
+              setMoveIndex(0);
+              setCorrectMoves(0);
+              setTotalMoves(0);
+              setTrainingSessionState('running');
+            }}>
+              RESTART
+            </button>
+
+            <button onClick={() => {
+              setMoveIndex(0);
+              setCorrectMoves(0);
+              setTotalMoves(0);
+              setTrainingSessionState('idle');
+            }}>
+              STOP
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
-}
-
-function trainerStateReducer(prevState: TrainerState, action: TrainerStateAction): TrainerState {
-  if (action.type === 'start') {
-    return {
-      currentIndex: 0,
-      total: 0,
-      correct: 0,
-    }
-  }
-
-  const {currentIndex, correct, total } = prevState;
-  const {move, movesSequence} = action.payload;
-
-
-  if (currentIndex === undefined || move !== movesSequence[currentIndex]) {
-    return {
-      currentIndex: 0,
-      total: total + 1,
-      correct: correct,
-    }
-  }
-
-  if (currentIndex < movesSequence.length - 1) {
-    return {
-      currentIndex: currentIndex + 1,
-      total: total + 1,
-      correct: correct + 1,
-    };
-  }
-
-  return {
-    currentIndex: 0,
-    total: total + 1,
-    correct: correct + 1,
-  }
 }
 
 type StatsBlockProps = {
@@ -134,7 +157,7 @@ function StatsBlock({correct, total}: StatsBlockProps) {
         <span>{correct}</span>
       </div>
     </div>
-  )
+  );
 }
 
 function calcAccuracy(correct: number, total: number) {
@@ -142,5 +165,63 @@ function calcAccuracy(correct: number, total: number) {
     return 100;
   }
 
-  return Math.trunc((total / correct) * 100);
+  return Math.trunc((correct / total) * 100);
 }
+
+function ErrorAnimationBanner({ onFinish }: {onFinish: () => void}) {
+  const [countdown, setCountDown] = useState(3);
+  const timerIdRef = useRef(0);
+
+  const timerCallback = useCallback(() => {
+    if (countdown === 1) {
+      setCountDown(0);
+      onFinish();
+    } else if (countdown > 1) {
+      setCountDown(countdown - 1);
+      timerIdRef.current = setTimeout(() => {
+        timerCallbackRef.current();
+      }, 1000);
+    }
+  }, [countdown, onFinish]);
+
+  const timerCallbackRef = useRef(timerCallback);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
+    timerCallbackRef.current = timerCallback;
+  }, [timerCallback]);
+
+  useEffect(() => {
+    timerIdRef.current = setTimeout(() => {
+      timerCallbackRef.current();
+    }, 1000);
+
+    return () => {
+      clearTimeout(timerIdRef.current);
+    }
+  }, [])
+
+  return (
+    <div>
+      <div>Restart in</div>
+      <div>{countdown}</div>
+    </div>
+  )
+}
+
+/*
+
+press start
+  |
+countdown animation
+  |
+run training
+  |
+ ...
+  |
+make a mistake
+  |
+error animation, countdown
+  |
+run training
+
+ */
