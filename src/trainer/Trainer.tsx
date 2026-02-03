@@ -31,8 +31,8 @@ const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> =
 export function Trainer() {
   const movementManagerRef = useRef(new MovementManager());
   const [moveIndex, setMoveIndex] = useState(0);
-  const [correctMoves, setCorrectMoves] = useState(0);
-  const [totalMoves, setTotalMoves] = useState(0);
+  const [correctSequencesCount, setCorrectSequencesCount] = useState(0);
+  const [totalSequencesCount, setTotalSequencesCount] = useState(0);
   const [trainingSessionState, setTrainingSessionState] = useState<'idle' | 'paused' |  'running'>('idle')
 
   const [selectedSequenceKey, setSelectedSequenceKey] = useState(MovementSequenceKey.KbdLeft);
@@ -58,24 +58,20 @@ export function Trainer() {
       return;
     }
 
-    setTotalMoves(count => count + 1);
-
     if (move !== movesSequence[moveIndex]) {
       setMoveIndex(0);
+      setTotalSequencesCount(count => count + 1);
 
       playAnimation('restart-after-mistake', () => {
         setTrainingSessionState('running');
         setMoveIndex(0);
       })
-      return;
-    }
-
-    setCorrectMoves(count => count + 1);
-
-    if (moveIndex < movesSequence.length - 1) {
+    } else if (moveIndex < movesSequence.length - 1) {
       setMoveIndex(count => count + 1);
     } else {
       setMoveIndex(0);
+      setTotalSequencesCount(count => count + 1);
+      setCorrectSequencesCount(count => count + 1)
     }
   }, [animationData, moveIndex, movesSequence, playAnimation, trainingSessionState]);
 
@@ -114,7 +110,7 @@ export function Trainer() {
         sequence={movesSequence}
         currentCellIndex={trainingSessionState === 'running' ? moveIndex : undefined}
       />
-      <StatsBlock correct={correctMoves} total={totalMoves} />
+      <StatsBlock correct={correctSequencesCount} total={totalSequencesCount} />
 
       <div style={{display: 'flex', gap: '10px'}}>
         {animationData?.key === 'restart-after-mistake' && (
@@ -137,14 +133,14 @@ export function Trainer() {
           onPause={() => setTrainingSessionState('idle')}
           onReset={() => {
             setMoveIndex(0);
-            setCorrectMoves(0);
-            setTotalMoves(0);
+            setCorrectSequencesCount(0);
+            setTotalSequencesCount(0);
             setTrainingSessionState('running');
           }}
           onStop={() => {
             setMoveIndex(0);
-            setCorrectMoves(0);
-            setTotalMoves(0);
+            setCorrectSequencesCount(0);
+            setTotalSequencesCount(0);
             setTrainingSessionState('idle');
           }}
         />
