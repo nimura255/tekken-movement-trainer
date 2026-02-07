@@ -1,11 +1,13 @@
-import {useEffect, useRef, useCallback, useState} from "react";
+import {useEffect, useRef, useCallback, useState} from 'react';
+import {ControlsManager} from '$/controls-manager';
 import {MovementManager} from '$/movement-manager';
 import type {DirectionInput} from '$/types';
 import {NotationSequence} from '$/ui/NotationSequence';
 import {CountdownModal} from '$/ui/CoundownModal';
 import {StatsBlock} from './StatsBlock';
+import {PlaybackButtons} from './PlaybackButtons';
+
 import styles from './Trainer.module.css';
-import {PlaybackButtons} from './PlaybackButtons.tsx';
 
 enum MovementSequenceKey {
   KbdLeft = 'kbd-l',
@@ -42,6 +44,8 @@ export function Trainer() {
     key: 'start' | 'restart-after-mistake';
     callback: () => void;
   }>(undefined);
+
+  const gamepads = useGamepadsList();
 
   const playAnimation = useCallback((key: 'start' | 'restart-after-mistake', callback: () => void) => {
     setAnimationData({
@@ -82,15 +86,19 @@ export function Trainer() {
 
   useEffect(() => {
     const movementManager = movementManagerRef.current;
+    const controlsManager = new ControlsManager({movementManager});
+
     const onMoveChange = (move: DirectionInput) => {
       handleMoveChangeRef.current(move);
     };
 
     movementManager.init();
+    controlsManager.init();
     movementManager.subscribeToMove(onMoveChange);
 
     return () => {
       movementManager.terminate();
+      controlsManager.terminate()
       movementManager.unsubscribeFromMove(onMoveChange);
     }
   }, []);
@@ -107,6 +115,7 @@ export function Trainer() {
       </select>
 
       <NotationSequence
+        alignCells="center"
         sequence={movesSequence}
         currentCellIndex={trainingSessionState === 'running' ? moveIndex : undefined}
       />
@@ -145,6 +154,37 @@ export function Trainer() {
           }}
         />
       </div>
+
+      {gamepads.length ? (
+        <div style={{maxWidth: '309px'}}>
+          <span>Controllers</span>
+          <div className={styles.controllersLists}>
+            {gamepads.map(gamepad => (
+              <div key={`#${gamepad.index}-${gamepad.id}`} className={styles.controllersListItem}>{gamepad.id}</div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function useGamepadsList() {
+  const [controllers, setControllers] = useState<Gamepad[]>([]);
+
+  useEffect(() => {
+    const handleGamepadChangeEvent = () => {
+      setControllers(navigator.getGamepads().filter<Gamepad>(gamepad => gamepad !== null));
+    };
+
+    window.addEventListener('gamepadconnected', handleGamepadChangeEvent);
+    window.addEventListener('gamepaddisconnected', handleGamepadChangeEvent);
+
+    return () => {
+      window.removeEventListener('gamepadconnected', handleGamepadChangeEvent);
+      window.removeEventListener('gamepaddisconnected', handleGamepadChangeEvent);
+    }
+  }, []);
+
+  return controllers;
 }

@@ -1,17 +1,17 @@
 import type {DirectionInput} from '$/types';
-import {NotationCell} from '$/ui/NotationCell';
+import {NotationCell, type NotationCellState} from '$/ui/NotationCell';
 
 import styles from './NotationSequence.module.css';
-import type {NotationCellState} from "$/ui/NotationCell";
 
 type NotationSequenceProps = {
   sequence: DirectionInput[];
   currentCellIndex?: number;
+  alignCells?: 'start' | 'end' | 'center';
 }
 
-export function NotationSequence({sequence, currentCellIndex}: NotationSequenceProps) {
+export function NotationSequence({sequence, currentCellIndex, alignCells}: NotationSequenceProps) {
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{justifyContent: alignCells}}>
       {sequence.map((item, index) => (
         <NotationCell
           direction={item}

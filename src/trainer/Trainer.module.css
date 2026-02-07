@@ -33,3 +33,14 @@
   border-radius: 5px;
   background: linear-gradient(90deg, var(--error-red), var(--warning-orange), var(--success-green));
 }
+
+.controllersLists {
+  display: flex;
+  flex-direction: column;
+}
+
+.controllersListItem {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

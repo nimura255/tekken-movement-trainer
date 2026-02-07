@@ -1,23 +1,21 @@
 
 import {EventEmitter} from '$/event-emitter';
-import {InputsManager, type InputEventPayload} from '$/inputs-manager';
+import {InputsManager, type InputEventPayload, type KeysMapKey} from '$/inputs-manager';
 import type {DirectionInput} from '$/types';
 
 type MovementListener = (move: DirectionInput) => void;
+
+export type MoveKey = KeysMapKey;
 
 export class MovementManager {
   private inputsManager = new InputsManager();
   private eventEmitter = new EventEmitter<DirectionInput>();
 
   public init() {
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
     this.inputsManager.subscribeToInputs(this.handleInputChange);
   }
 
   public terminate() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-    document.removeEventListener('keyup', this.handleKeyUp);
     this.inputsManager.unsubscribeFromInputs(this.handleInputChange);
   }
 
@@ -29,12 +27,12 @@ export class MovementManager {
     this.eventEmitter.unsubscribe('move', listener);
   }
 
-  private handleKeyDown = (event: KeyboardEvent) => {
-    this.inputsManager.inputKey(event.code);
+  public keyDown = (key: MoveKey) => {
+    this.inputsManager.inputKey(key);
   };
 
-  private handleKeyUp = (event: KeyboardEvent) => {
-    this.inputsManager.releaseKey(event.code);
+  public keyUp = (key: MoveKey) => {
+    this.inputsManager.releaseKey(key);
   };
 
   private handleInputChange = (payload: InputEventPayload) => {
