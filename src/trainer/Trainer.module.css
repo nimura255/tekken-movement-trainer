@@ -4,6 +4,11 @@
   gap: 10px;
 }
 
+.playbackButtonsList {
+  display: flex;
+  gap: 10px;
+}
+
 .statsContainer {
   display: flex;
   gap: 10px;
@@ -34,6 +39,10 @@
   background: linear-gradient(90deg, var(--error-red), var(--warning-orange), var(--success-green));
 }
 
+.controllersSection {
+  max-width: 309px;
+}
+
 .controllersLists {
   display: flex;
   flex-direction: column;
@@ -43,4 +52,20 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.commandsList {
+  position: relative;
+  max-width: 309px;
+  overflow: hidden;
+  justify-content: end;
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 1) 80px);
+}
+
+.commandsList:before {
+  content: ' ';
+  position: absolute;
+  inset-inline-start: 0;
+  height: 20px;
+  width: 20px;
 }

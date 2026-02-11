@@ -3,6 +3,7 @@ import {ControlsManager} from '$/controls-manager';
 import {MovementManager} from '$/movement-manager';
 import type {DirectionInput} from '$/types';
 import {NotationSequence} from '$/ui/NotationSequence';
+import {NotationItemsList} from '$/ui/NotationItemsList';
 import {CountdownModal} from '$/ui/CoundownModal';
 import {StatsBlock} from './StatsBlock';
 import {PlaybackButtons} from './PlaybackButtons';
@@ -39,6 +40,7 @@ export function Trainer() {
 
   const [selectedSequenceKey, setSelectedSequenceKey] = useState(MovementSequenceKey.KbdLeft);
   const movesSequence = movementSequencesMap[selectedSequenceKey];
+  const [commandHistory, setCommandHistory] = useState<DirectionInput[]>([])
 
   const [animationData, setAnimationData] = useState<undefined | {
     key: 'start' | 'restart-after-mistake';
@@ -61,6 +63,13 @@ export function Trainer() {
     if (trainingSessionState !== 'running' || animationData) {
       return;
     }
+
+    setCommandHistory(state => {
+      const sliced = state.slice(-20);
+      sliced.push(move);
+
+      return sliced;
+    });
 
     if (move !== movesSequence[moveIndex]) {
       setMoveIndex(0);
@@ -121,7 +130,7 @@ export function Trainer() {
       />
       <StatsBlock correct={correctSequencesCount} total={totalSequencesCount} />
 
-      <div style={{display: 'flex', gap: '10px'}}>
+      <div className={styles.playbackButtonsList}>
         {animationData?.key === 'restart-after-mistake' && (
           <CountdownModal
             onCountdownFinish={animationData.callback}
@@ -144,19 +153,23 @@ export function Trainer() {
             setMoveIndex(0);
             setCorrectSequencesCount(0);
             setTotalSequencesCount(0);
+            setCommandHistory([]);
             setTrainingSessionState('running');
           }}
           onStop={() => {
             setMoveIndex(0);
             setCorrectSequencesCount(0);
             setTotalSequencesCount(0);
+            setCommandHistory([]);
             setTrainingSessionState('idle');
           }}
         />
       </div>
 
+      <NotationItemsList className={styles.commandsList} items={commandHistory} />
+
       {gamepads.length ? (
-        <div style={{maxWidth: '309px'}}>
+        <div className={styles.controllersSection}>
           <span>Controllers</span>
           <div className={styles.controllersLists}>
             {gamepads.map(gamepad => (
