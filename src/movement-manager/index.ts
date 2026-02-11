@@ -27,12 +27,8 @@ export class MovementManager {
     this.eventEmitter.unsubscribe('move', listener);
   }
 
-  public keyDown = (key: MoveKey) => {
-    this.inputsManager.inputKey(key);
-  };
-
-  public keyUp = (key: MoveKey) => {
-    this.inputsManager.releaseKey(key);
+  public changeKeys = (newKeysMap: Record<KeysMapKey, boolean>) => {
+    this.inputsManager.changeKeys(newKeysMap);
   };
 
   private handleInputChange = (payload: InputEventPayload) => {

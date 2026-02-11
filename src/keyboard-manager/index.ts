@@ -15,10 +15,10 @@ export class KeyboardManager {
 
 
   private handleKeyDown = (event: KeyboardEvent) => {
-    this.keysSet.add(event.code as KeyboardKey)
+    this.keysSet.add(event.code as KeyboardKey);
   }
 
   private handleKeyUp = (event: KeyboardEvent) => {
-    this.keysSet.delete(event.code as KeyboardKey)
+    this.keysSet.delete(event.code as KeyboardKey);
   }
 }

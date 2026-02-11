@@ -32,9 +32,16 @@
   flex-grow: 1;
 }
 
-.bar {
+.barContainer {
   height: 10px;
   width: 100%;
+  border-radius: 5px;
+  background: #1a1a1a;
+}
+
+.bar {
+  height: 10px;
+  max-width: 100%;
   border-radius: 5px;
   background: linear-gradient(90deg, var(--error-red), var(--warning-orange), var(--success-green));
 }

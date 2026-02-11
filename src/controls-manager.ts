@@ -48,13 +48,7 @@ export class ControlsManager {
       });
     }
 
-    buttonsMap.forEach((isKeyDown, moveKey) => {
-      if (isKeyDown) {
-        this.movementManager.keyDown(moveKey)
-      } else {
-        this.movementManager.keyUp(moveKey)
-      }
-    });
+    this.movementManager.changeKeys(Object.fromEntries(buttonsMap) as Record<MoveKey, boolean>);
   }
 
   private gameLoop = new RequestAnimationFrameLoop(this.loopStep);

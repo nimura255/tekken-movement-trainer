@@ -15,16 +15,19 @@ export class InputsManager {
   }
   private eventEmitter = new EventEmitter<Record<KeysMapKey, boolean>>();
 
-  public inputKey(key: KeysMapKey) {
-    if (!this.keysMap[key]) {
-      this.keysMap[key] = true;
-      this.eventEmitter.notify('input', {...this.keysMap});
-    }
-  }
+  public changeKeys(newKeysMap: Record<KeysMapKey, boolean>) {
+    let hasMapChanged = false;
 
-  public releaseKey(key: KeysMapKey) {
-    if (this.keysMap[key]) {
-      this.keysMap[key] = false;
+    for (const key in this.keysMap) {
+      if (this.keysMap[key as KeysMapKey] != newKeysMap[key as KeysMapKey]) {
+        hasMapChanged = true;
+        break;
+      }
+    }
+
+    this.keysMap = newKeysMap;
+
+    if (hasMapChanged) {
       this.eventEmitter.notify('input', {...this.keysMap});
     }
   }
