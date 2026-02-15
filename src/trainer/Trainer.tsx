@@ -1,4 +1,4 @@
-import {useEffect, useRef, useCallback, useState} from 'react';
+import {useEffect, useRef, useCallback, useState, useMemo} from 'react';
 import {ControlsManager} from '$/controls-manager';
 import {MovementManager} from '$/movement-manager';
 import type {AttackMoveInput} from '$/types';
@@ -19,13 +19,13 @@ enum MovementSequenceKey {
   EwgfLeft = 'ewgf-l',
 }
 
-const movementSequencesMap: Record<MovementSequenceKey, AttackMoveInput[]> = {
-  [MovementSequenceKey.KbdLeft]: ['b', 'n', 'b', 'db'],
-  [MovementSequenceKey.KbdRight]: ['f', 'n', 'f', 'df'],
-  [MovementSequenceKey.WaveDashLeft]: ['f', 'n', 'd', 'df', 'f', 'n'],
-  [MovementSequenceKey.WaveDashRight]: ['b', 'n', 'd', 'db', 'b', 'n'],
-  [MovementSequenceKey.WgfLeft]: ['f', 'n', 'd', 'df', 'df2', 'n'],
-  [MovementSequenceKey.EwgfLeft]: ['f', 'n', 'd', 'df2', 'n'],
+const movementSequencesMap: Record<MovementSequenceKey, {move: AttackMoveInput[], strictLoop: boolean}> = {
+  [MovementSequenceKey.KbdLeft]: {move: ['b', 'n', 'b', 'db'], strictLoop: true},
+  [MovementSequenceKey.KbdRight]: {move: ['f', 'n', 'f', 'df'], strictLoop: true},
+  [MovementSequenceKey.WaveDashLeft]: {move: ['f', 'n', 'd', 'df', 'f', 'n'], strictLoop: true},
+  [MovementSequenceKey.WaveDashRight]: {move: ['b', 'n', 'd', 'db', 'b', 'n'], strictLoop: true},
+  [MovementSequenceKey.WgfLeft]: {move: ['f', 'n', 'd', 'df', 'df2'], strictLoop: false},
+  [MovementSequenceKey.EwgfLeft]: {move: ['f', 'n', 'd', 'df2'], strictLoop: false},
 };
 
 const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> = [
@@ -45,8 +45,35 @@ export function Trainer() {
   const [trainingSessionState, setTrainingSessionState] = useState<'idle' | 'paused' |  'running'>('idle')
 
   const [selectedSequenceKey, setSelectedSequenceKey] = useState(MovementSequenceKey.KbdLeft);
-  const movesSequence = movementSequencesMap[selectedSequenceKey];
-  const [commandHistory, setCommandHistory] = useState<AttackMoveInput[]>([])
+  const movesSequence = useMemo(() => movementSequencesMap[selectedSequenceKey], [selectedSequenceKey]);
+  const [commandHistory, setCommandHistory] = useState<AttackMoveInput[]>([]);
+
+  const [isWaitingForAllButtonUp, setIsWaitingForAllButtonUp] = useState(false);
+
+  const movesSequenceToShow = useMemo(() => {
+    const move = [...movesSequence.move];
+
+    if (!movesSequence.strictLoop) {
+      move.push('n');
+    }
+
+    return {
+      move,
+      strictLoop: movesSequence.strictLoop
+    };
+  }, [movesSequence]);
+
+  const currentCellIndexToShow = useMemo(() => {
+    if (trainingSessionState !== 'running') {
+      return undefined;
+    }
+
+    if (isWaitingForAllButtonUp) {
+      return movesSequenceToShow.move.length - 1;
+    }
+
+    return moveIndex;
+  }, [trainingSessionState, moveIndex, movesSequenceToShow, isWaitingForAllButtonUp])
 
   const [animationData, setAnimationData] = useState<undefined | {
     key: 'start' | 'restart-after-mistake';
@@ -70,6 +97,14 @@ export function Trainer() {
       return;
     }
 
+    if (isWaitingForAllButtonUp) {
+      if (move === 'n') {
+        setIsWaitingForAllButtonUp(false);
+      }
+
+      return;
+    }
+
     setCommandHistory(state => {
       const sliced = state.slice(-20);
       sliced.push(move);
@@ -77,7 +112,7 @@ export function Trainer() {
       return sliced;
     });
 
-    if (move !== movesSequence[moveIndex]) {
+    if (move !== movesSequence.move[moveIndex]) {
       setMoveIndex(0);
       setTotalSequencesCount(count => count + 1);
 
@@ -85,14 +120,18 @@ export function Trainer() {
         setTrainingSessionState('running');
         setMoveIndex(0);
       })
-    } else if (moveIndex < movesSequence.length - 1) {
+    } else if (moveIndex < movesSequence.move.length - 1) {
       setMoveIndex(count => count + 1);
     } else {
+      if (!movesSequence.strictLoop) {
+        setIsWaitingForAllButtonUp(true);
+      }
+
       setMoveIndex(0);
       setTotalSequencesCount(count => count + 1);
       setCorrectSequencesCount(count => count + 1)
     }
-  }, [animationData, moveIndex, movesSequence, playAnimation, trainingSessionState]);
+  }, [animationData, isWaitingForAllButtonUp, moveIndex, movesSequence.move, movesSequence.strictLoop, playAnimation, trainingSessionState]);
 
   const handleMoveChangeRef = useRef(handleMoveChange);
   useEffect(() => {
@@ -131,8 +170,8 @@ export function Trainer() {
 
       <NotationSequence
         alignCells="center"
-        sequence={movesSequence}
-        currentCellIndex={trainingSessionState === 'running' ? moveIndex : undefined}
+        sequence={movesSequenceToShow.move}
+        currentCellIndex={currentCellIndexToShow}
       />
       <StatsBlock correct={correctSequencesCount} total={totalSequencesCount} />
 

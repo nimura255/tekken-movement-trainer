@@ -7,6 +7,7 @@
 .playbackButtonsList {
   display: flex;
   gap: 10px;
+  justify-content: center;
 }
 
 .statsContainer {
@@ -61,9 +62,18 @@
   overflow: hidden;
 }
 
+.commandsListWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+}
+
 .commandsList {
   position: relative;
-  max-width: 309px;
+  align-self: center;
+  width: 300px;
+  height: 20px;
   overflow: hidden;
   justify-content: end;
   mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 1) 80px);
