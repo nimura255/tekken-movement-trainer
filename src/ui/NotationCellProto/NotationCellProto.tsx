@@ -4,10 +4,14 @@ import down from '$/assets/d.png';
 import downForward from '$/assets/df.png';
 import forward from '$/assets/f.png';
 import neutral from '$/assets/n.png';
-import type {DirectionInput} from '$/types';
+import type {AttackInput, AttackMoveInput, DirectionInput} from '$/types';
+import {AttackNotationIcon} from '$/ui/AttackNotationIcon';
+import {classNames} from '$/utils/classNames';
+
+import styles from './NotationCellProto.module.css';
 
 export type NotationCellProtoProps = {
-  direction: DirectionInput;
+  direction: AttackMoveInput;
   className?: string;
 }
 
@@ -26,15 +30,27 @@ const directionToCharMap: Partial<Record<DirectionInput, string>> = {
   d: '↓',
   df: '↘',
   f: '→',
-  n: '★'
+  n: '★',
 }
 
 export function NotationCellProto({direction, className}: NotationCellProtoProps) {
+  const matches = direction.match(/([dubfn]*)([1234]*)/);
+  const directionPart = matches?.[1] as DirectionInput;
+  const attackPart = matches?.[2] as AttackInput;
+
+  const directionIcon = directionToIconMap[directionPart];
+  const directionAlt = directionToCharMap[directionPart];
+
   return (
-    <img
-      className={className}
-      src={directionToIconMap[direction]}
-      alt={directionToCharMap[direction]}
-    />
+    <div className={classNames(styles.container, className)}>
+      {directionIcon || directionAlt ? (
+        <img
+          className={styles.directionIcon}
+          src={directionIcon}
+          alt={directionAlt}
+        />
+      ) : null}
+      {attackPart ? <AttackNotationIcon input={attackPart} className={styles.attackIcon} /> : null}
+    </div>
   )
 }

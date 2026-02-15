@@ -1,7 +1,7 @@
 
 import {EventEmitter} from '$/event-emitter';
 
-export type KeysMapKey = 'up' | 'down' | 'left' | 'right';
+export type KeysMapKey = 'up' | 'down' | 'left' | 'right' | '1' | '2' | '3' | '4';
 
 export type InputEventPayload = Record<KeysMapKey, boolean>;
 type InputListener = (payload: InputEventPayload) => void;
@@ -12,6 +12,10 @@ export class InputsManager {
     left: false,
     right: false,
     up: false,
+    1: false,
+    2: false,
+    3: false,
+    4: false,
   }
   private eventEmitter = new EventEmitter<Record<KeysMapKey, boolean>>();
 

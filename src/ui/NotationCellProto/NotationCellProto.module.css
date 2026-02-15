@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+
+  --kbd-trainer-notation-cell-icon-size: 48px;
+}
+
+.container .attackIcon,
+.container .directionIcon {
+  flex-shrink: 0;
+  width: var(--kbd-trainer-notation-cell-icon-size);
+  height: var(--kbd-trainer-notation-cell-icon-size);
+}

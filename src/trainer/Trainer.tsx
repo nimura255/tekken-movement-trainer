@@ -1,7 +1,7 @@
 import {useEffect, useRef, useCallback, useState} from 'react';
 import {ControlsManager} from '$/controls-manager';
 import {MovementManager} from '$/movement-manager';
-import type {DirectionInput} from '$/types';
+import type {AttackMoveInput} from '$/types';
 import {NotationSequence} from '$/ui/NotationSequence';
 import {NotationItemsList} from '$/ui/NotationItemsList';
 import {CountdownModal} from '$/ui/CoundownModal';
@@ -15,13 +15,17 @@ enum MovementSequenceKey {
   KbdRight = 'kbd-r',
   WaveDashLeft = 'wavu-l',
   WaveDashRight = 'wavu-r',
+  WgfLeft = 'wgf-l',
+  EwgfLeft = 'ewgf-l',
 }
 
-const movementSequencesMap: Record<MovementSequenceKey, DirectionInput[]> = {
+const movementSequencesMap: Record<MovementSequenceKey, AttackMoveInput[]> = {
   [MovementSequenceKey.KbdLeft]: ['b', 'n', 'b', 'db'],
   [MovementSequenceKey.KbdRight]: ['f', 'n', 'f', 'df'],
   [MovementSequenceKey.WaveDashLeft]: ['f', 'n', 'd', 'df', 'f', 'n'],
-  [MovementSequenceKey.WaveDashRight]: ['b', 'n', 'd', 'db', 'b', 'n']
+  [MovementSequenceKey.WaveDashRight]: ['b', 'n', 'd', 'db', 'b', 'n'],
+  [MovementSequenceKey.WgfLeft]: ['f', 'n', 'd', 'df', 'df2', 'n'],
+  [MovementSequenceKey.EwgfLeft]: ['f', 'n', 'd', 'df2', 'n'],
 };
 
 const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> = [
@@ -29,6 +33,8 @@ const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> =
   {key: MovementSequenceKey.KbdRight, title: 'Korean Backdash (Right)'},
   {key: MovementSequenceKey.WaveDashLeft, title: 'Wavedash (Left)'},
   {key: MovementSequenceKey.WaveDashRight, title: 'Wavedash (Right)'},
+  {key: MovementSequenceKey.WgfLeft, title: 'Wind God Fist (Left)'},
+  {key: MovementSequenceKey.EwgfLeft, title: 'Electric Wind God Fist (Left)'}
 ];
 
 export function Trainer() {
@@ -40,7 +46,7 @@ export function Trainer() {
 
   const [selectedSequenceKey, setSelectedSequenceKey] = useState(MovementSequenceKey.KbdLeft);
   const movesSequence = movementSequencesMap[selectedSequenceKey];
-  const [commandHistory, setCommandHistory] = useState<DirectionInput[]>([])
+  const [commandHistory, setCommandHistory] = useState<AttackMoveInput[]>([])
 
   const [animationData, setAnimationData] = useState<undefined | {
     key: 'start' | 'restart-after-mistake';
@@ -59,7 +65,7 @@ export function Trainer() {
     });
   }, []);
 
-  const handleMoveChange = useCallback((move: DirectionInput) => {
+  const handleMoveChange = useCallback((move: AttackMoveInput) => {
     if (trainingSessionState !== 'running' || animationData) {
       return;
     }
@@ -97,7 +103,7 @@ export function Trainer() {
     const movementManager = movementManagerRef.current;
     const controlsManager = new ControlsManager({movementManager});
 
-    const onMoveChange = (move: DirectionInput) => {
+    const onMoveChange = (move: AttackMoveInput) => {
       handleMoveChangeRef.current(move);
     };
 

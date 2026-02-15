@@ -1,0 +1,1 @@
+export {AttackNotationIcon} from './AttackNotationIcon';

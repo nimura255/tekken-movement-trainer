@@ -26,6 +26,10 @@ export class ControlsManager {
       ['down', false],
       ['left', false],
       ['right', false],
+      ['1', false],
+      ['2', false],
+      ['3', false],
+      ['4', false],
     ]);
 
     this.keyboardManager.keysSet.forEach(keyboardKey => {
@@ -102,6 +106,14 @@ function adaptKeyCodeToKeysMapKey(keyCode: string): MoveKey | undefined {
     case 'ArrowRight':
     case 'KeyD':
       return 'right';
+    case 'KeyJ':
+      return '1';
+    case 'KeyI':
+      return '2';
+    case 'KeyK':
+      return '3';
+    case 'KeyO':
+      return '4';
     default:
       return undefined;
   }

@@ -5,6 +5,5 @@
 }
 
 .listItem {
-  width: 20px;
-  height: 20px;
+  --kbd-trainer-notation-cell-icon-size: 20px;
 }

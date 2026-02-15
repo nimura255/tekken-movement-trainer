@@ -1,6 +1,5 @@
 .container {
-  width: 65px;
-  height: 65px;
+  --kbd-trainer-notation-cell-icon-size: 65px;
   border-width: 2px;
   border-radius: 14px;
   border-style: solid;

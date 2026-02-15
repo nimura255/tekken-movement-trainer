@@ -1,4 +1,4 @@
-export type KeyboardKey = 'ArrowUp' | 'KeyW' | 'ArrowDown' | 'KeyS' | 'ArrowLeft' | 'KeyA' | 'ArrowRight' | 'KeyD';
+export type KeyboardKey = 'ArrowUp' | 'KeyW' | 'ArrowDown' | 'KeyS' | 'ArrowLeft' | 'KeyA' | 'ArrowRight' | 'KeyD' | 'KeyJ' | 'KeyI' | 'KeyK' | 'KeyO';
 
 export class KeyboardManager {
   public readonly keysSet = new Set<KeyboardKey>();

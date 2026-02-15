@@ -1,11 +1,11 @@
-import type {DirectionInput} from '$/types';
+import type {AttackMoveInput} from '$/types';
 import {NotationCellProto} from '$/ui/NotationCellProto';
 import {classNames} from '$/utils/classNames';
 
 import styles from './NotationItemsList.module.css';
 
 type NotationItemsListProps = {
-  items: DirectionInput[];
+  items: AttackMoveInput[];
   className?: string;
 };
 

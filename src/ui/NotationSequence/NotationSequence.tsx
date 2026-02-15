@@ -1,10 +1,10 @@
-import type {DirectionInput} from '$/types';
+import type {AttackMoveInput} from '$/types';
 import {NotationCell, type NotationCellState} from '$/ui/NotationCell';
 
 import styles from './NotationSequence.module.css';
 
 type NotationSequenceProps = {
-  sequence: DirectionInput[];
+  sequence: AttackMoveInput[];
   currentCellIndex?: number;
   alignCells?: 'start' | 'end' | 'center';
 }

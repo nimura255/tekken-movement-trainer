@@ -1,15 +1,15 @@
 
 import {EventEmitter} from '$/event-emitter';
 import {InputsManager, type InputEventPayload, type KeysMapKey} from '$/inputs-manager';
-import type {DirectionInput} from '$/types';
+import type {AttackInput, AttackMoveInput} from '$/types';
 
-type MovementListener = (move: DirectionInput) => void;
+type MovementListener = (move: AttackMoveInput) => void;
 
 export type MoveKey = KeysMapKey;
 
 export class MovementManager {
   private inputsManager = new InputsManager();
-  private eventEmitter = new EventEmitter<DirectionInput>();
+  private eventEmitter = new EventEmitter<AttackMoveInput>();
 
   public init() {
     this.inputsManager.subscribeToInputs(this.handleInputChange);
@@ -36,9 +36,10 @@ export class MovementManager {
   }
 }
 
-function translateInputEventPayloadToCommand(payload: InputEventPayload): DirectionInput {
+function translateInputEventPayloadToCommand(payload: InputEventPayload): AttackMoveInput {
   let horizontal: 'b' | 'f' | '' = '';
   let vertical: 'd' | 'u' | '' = '';
+  let attack: AttackInput | '' = '';
 
   if (payload.left && !payload.right) {
     horizontal = 'b';
@@ -52,5 +53,11 @@ function translateInputEventPayloadToCommand(payload: InputEventPayload): Direct
     vertical = 'u';
   }
 
-  return ((vertical + horizontal) || 'n') as DirectionInput;
+  for (let i = 1; i <= 4; i++) {
+    if (payload[String(i) as keyof InputEventPayload]) {
+      attack = attack + String(i);
+    }
+  }
+
+  return ((vertical + horizontal + attack) || 'n') as AttackMoveInput;
 }
