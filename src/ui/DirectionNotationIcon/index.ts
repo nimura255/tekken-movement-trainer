@@ -1,0 +1,1 @@
+export {DirectionNotationIcon} from './DirectionNotationIcon';

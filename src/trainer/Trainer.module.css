@@ -48,7 +48,7 @@
 }
 
 .controllersSection {
-  max-width: 309px;
+  max-width: 310px;
   align-self: center;
 }
 
@@ -73,7 +73,7 @@
 .commandsList {
   position: relative;
   align-self: center;
-  width: 300px;
+  width: 310px;
   height: 20px;
   overflow: hidden;
   justify-content: end;

@@ -1,5 +1,10 @@
 .container {
-  --kbd-trainer-notation-cell-icon-size: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  --kbd-trainer-notation-cell-icon-size: 60px;
+  box-sizing: border-box;
   border-width: 2px;
   border-radius: 14px;
   border-style: solid;
