@@ -1,4 +1,4 @@
-import {useEffect, useRef, useCallback, useState, useMemo} from 'react';
+import {useEffect, useRef, useCallback, useState, useMemo, type ChangeEvent} from 'react';
 import {ControlsManager} from '$/controls-manager';
 import {MovementManager} from '$/movement-manager';
 import type {AttackMoveInput} from '$/types';
@@ -37,6 +37,8 @@ const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> =
   {key: MovementSequenceKey.EwgfLeft, title: 'Electric Wind God Fist (Left)'}
 ];
 
+const SelectedSequenceSessionsStorageKey = 'SelectedSequenceSessionsStorageKey';
+
 export function Trainer() {
   const movementManagerRef = useRef(new MovementManager());
   const [moveIndex, setMoveIndex] = useState(0);
@@ -44,7 +46,10 @@ export function Trainer() {
   const [totalSequencesCount, setTotalSequencesCount] = useState(0);
   const [trainingSessionState, setTrainingSessionState] = useState<'idle' | 'paused' |  'running'>('idle')
 
-  const [selectedSequenceKey, setSelectedSequenceKey] = useState(MovementSequenceKey.KbdLeft);
+  const [selectedSequenceKey, setSelectedSequenceKey] = useState<MovementSequenceKey>(() => {
+    return sessionStorage.getItem(SelectedSequenceSessionsStorageKey) as MovementSequenceKey ||  MovementSequenceKey.KbdLeft;
+  });
+
   const movesSequence = useMemo(() => movementSequencesMap[selectedSequenceKey], [selectedSequenceKey]);
   const [commandHistory, setCommandHistory] = useState<AttackMoveInput[]>([]);
 
@@ -93,6 +98,13 @@ export function Trainer() {
   }, []);
 
   const handleMoveChange = useCallback((move: AttackMoveInput) => {
+    setCommandHistory(state => {
+      const sliced = state.slice(-20);
+      sliced.push(move);
+
+      return sliced;
+    });
+
     if (trainingSessionState !== 'running' || animationData) {
       return;
     }
@@ -104,13 +116,6 @@ export function Trainer() {
 
       return;
     }
-
-    setCommandHistory(state => {
-      const sliced = state.slice(-20);
-      sliced.push(move);
-
-      return sliced;
-    });
 
     if (move !== movesSequence.move[moveIndex]) {
       setMoveIndex(0);
@@ -132,6 +137,11 @@ export function Trainer() {
       setCorrectSequencesCount(count => count + 1)
     }
   }, [animationData, isWaitingForAllButtonUp, moveIndex, movesSequence.move, movesSequence.strictLoop, playAnimation, trainingSessionState]);
+
+  const handleSelectChane = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSequenceKey(event.target.value as MovementSequenceKey);
+    sessionStorage.setItem(SelectedSequenceSessionsStorageKey, event.target.value);
+  }, []);
 
   const handleMoveChangeRef = useRef(handleMoveChange);
   useEffect(() => {
@@ -161,7 +171,7 @@ export function Trainer() {
     <div className={styles.container}>
       <select
         value={selectedSequenceKey}
-        onChange={event => setSelectedSequenceKey(event.target.value as MovementSequenceKey)}
+        onChange={handleSelectChane}
       >
         {movementSequencesMetas.map(({key, title}) => (
           <option key={key} value={key}>{title}</option>

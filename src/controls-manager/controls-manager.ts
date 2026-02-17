@@ -1,6 +1,11 @@
 import {MovementManager, type MoveKey} from '$/movement-manager';
-import {RequestAnimationFrameLoop} from './request-animation-frame-loop';
 import {KeyboardManager} from '$/keyboard-manager';
+import {RequestAnimationFrameLoop} from './request-animation-frame-loop';
+import {
+  adaptKeyCodeToKeysMapKey,
+  gamepadAxisToKeys,
+  gamepadButtonsToKeys,
+} from './helpers';
 
 export class ControlsManager {
   private movementManager: MovementManager;
@@ -42,12 +47,20 @@ export class ControlsManager {
 
     const gamepads = navigator.getGamepads();
 
+    if (gamepads[0]) {
+      const keys = gamepadButtonsToKeys(gamepads[0]);
+
+      keys.forEach((key) => {
+        buttonsMap.set(key, true);
+      });
+    }
+
     const movementAxis = gamepads[0]?.axes[9];
 
     if (movementAxis) {
       const gamepadTranslatedDirectionButtons = gamepadAxisToKeys(movementAxis);
 
-      gamepadTranslatedDirectionButtons?.map(key => {
+      gamepadTranslatedDirectionButtons?.forEach(key => {
         buttonsMap.set(key, true);
       });
     }
@@ -58,63 +71,4 @@ export class ControlsManager {
   private gameLoop = new RequestAnimationFrameLoop(this.loopStep);
 }
 
-function gamepadAxisToKeys(value: number): MoveKey[] | undefined {
-  if (value > -1.1 && value < -0.9) {
-    return ['up']
-  }
 
-  if (value > -0.8 && value < -0.6) {
-    return ['up', 'right'];
-  }
-
-  if (value > -0.5 && value < -0.4) {
-    return ['right'];
-  }
-
-  if (value > -0.2 && value < -0.1) {
-    return ['down', 'right'];
-  }
-
-  if (value > 0.1 && value < 0.2) {
-    return ['down'];
-  }
-
-  if (value > 0.4 && value < 0.5) {
-    return ['down', 'left'];
-  }
-
-  if (value > 0.7 && value < 0.8) {
-    return ['left'];
-  }
-
-  if (value > 0.9 && value < 1.1) {
-    return ['up', 'left'];
-  }
-}
-
-function adaptKeyCodeToKeysMapKey(keyCode: string): MoveKey | undefined {
-  switch (keyCode) {
-    case 'ArrowUp':
-    case 'KeyW':
-      return 'up';
-    case 'ArrowDown':
-    case 'KeyS':
-      return 'down';
-    case 'ArrowLeft':
-    case 'KeyA':
-      return 'left';
-    case 'ArrowRight':
-    case 'KeyD':
-      return 'right';
-    case 'KeyJ':
-      return '1';
-    case 'KeyI':
-      return '2';
-    case 'KeyK':
-      return '3';
-    case 'KeyO':
-      return '4';
-    default:
-      return undefined;
-  }
-}

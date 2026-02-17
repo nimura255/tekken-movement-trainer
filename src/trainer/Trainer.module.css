@@ -49,6 +49,7 @@
 
 .controllersSection {
   max-width: 309px;
+  align-self: center;
 }
 
 .controllersLists {
