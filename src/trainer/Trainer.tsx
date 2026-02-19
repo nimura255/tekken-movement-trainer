@@ -69,7 +69,7 @@ export function Trainer() {
   }, [movesSequence]);
 
   const currentCellIndexToShow = useMemo(() => {
-    if (trainingSessionState !== 'running') {
+    if (trainingSessionState !== 'running' && trainingSessionState !== 'paused') {
       return undefined;
     }
 
@@ -138,10 +138,27 @@ export function Trainer() {
     }
   }, [animationData, isWaitingForAllButtonUp, moveIndex, movesSequence.move, movesSequence.strictLoop, playAnimation, trainingSessionState]);
 
-  const handleSelectChane = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+  const handleStop = useCallback(() => {
+    setMoveIndex(0);
+    setCorrectSequencesCount(0);
+    setTotalSequencesCount(0);
+    setCommandHistory([]);
+    setTrainingSessionState('idle');
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setMoveIndex(0);
+    setCorrectSequencesCount(0);
+    setTotalSequencesCount(0);
+    setCommandHistory([]);
+    setTrainingSessionState('running');
+  }, []);
+
+  const handleSelectChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    handleStop();
     setSelectedSequenceKey(event.target.value as MovementSequenceKey);
     sessionStorage.setItem(SelectedSequenceSessionsStorageKey, event.target.value);
-  }, []);
+  }, [handleStop]);
 
   const handleMoveChangeRef = useRef(handleMoveChange);
   useEffect(() => {
@@ -171,7 +188,7 @@ export function Trainer() {
     <div className={styles.container}>
       <select
         value={selectedSequenceKey}
-        onChange={handleSelectChane}
+        onChange={handleSelectChange}
       >
         {movementSequencesMetas.map(({key, title}) => (
           <option key={key} value={key}>{title}</option>
@@ -203,21 +220,9 @@ export function Trainer() {
             setTrainingSessionState('running');
           }}
           onResume={() => setTrainingSessionState('running')}
-          onPause={() => setTrainingSessionState('idle')}
-          onReset={() => {
-            setMoveIndex(0);
-            setCorrectSequencesCount(0);
-            setTotalSequencesCount(0);
-            setCommandHistory([]);
-            setTrainingSessionState('running');
-          }}
-          onStop={() => {
-            setMoveIndex(0);
-            setCorrectSequencesCount(0);
-            setTotalSequencesCount(0);
-            setCommandHistory([]);
-            setTrainingSessionState('idle');
-          }}
+          onPause={() => setTrainingSessionState('paused')}
+          onReset={handleReset}
+          onStop={handleStop}
         />
       </div>
 
