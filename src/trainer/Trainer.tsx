@@ -16,7 +16,9 @@ enum MovementSequenceKey {
   WaveDashLeft = 'wavu-l',
   WaveDashRight = 'wavu-r',
   WgfLeft = 'wgf-l',
+  WgfRight = 'wgf-r',
   EwgfLeft = 'ewgf-l',
+  EwgfRight = 'ewgf-r',
 }
 
 const movementSequencesMap: Record<MovementSequenceKey, {move: AttackMoveInput[], strictLoop: boolean}> = {
@@ -26,6 +28,8 @@ const movementSequencesMap: Record<MovementSequenceKey, {move: AttackMoveInput[]
   [MovementSequenceKey.WaveDashRight]: {move: ['b', 'n', 'd', 'db', 'b', 'n'], strictLoop: true},
   [MovementSequenceKey.WgfLeft]: {move: ['f', 'n', 'd', 'df', 'df2'], strictLoop: false},
   [MovementSequenceKey.EwgfLeft]: {move: ['f', 'n', 'd', 'df2'], strictLoop: false},
+  [MovementSequenceKey.WgfRight]: {move: ['b', 'n', 'd', 'db', 'db2'], strictLoop: false},
+  [MovementSequenceKey.EwgfRight]: {move: ['b', 'n', 'd', 'db2'], strictLoop: false},
 };
 
 const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> = [
@@ -34,7 +38,9 @@ const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> =
   {key: MovementSequenceKey.WaveDashLeft, title: 'Wavedash (Left)'},
   {key: MovementSequenceKey.WaveDashRight, title: 'Wavedash (Right)'},
   {key: MovementSequenceKey.WgfLeft, title: 'Wind God Fist (Left)'},
-  {key: MovementSequenceKey.EwgfLeft, title: 'Electric Wind God Fist (Left)'}
+  {key: MovementSequenceKey.EwgfLeft, title: 'Electric Wind God Fist (Left)'},
+  {key: MovementSequenceKey.WgfRight, title: 'Wind God Fist (Right)'},
+  {key: MovementSequenceKey.EwgfRight, title: 'Electric Wind God Fist (Right)'}
 ];
 
 const SelectedSequenceSessionsStorageKey = 'SelectedSequenceSessionsStorageKey';
