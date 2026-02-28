@@ -1,5 +1,6 @@
 import {useEffect, useRef, useCallback, useState, useMemo, type ChangeEvent} from 'react';
 import {ControlsManager} from '$/controls-manager';
+import {HighScoresList, saveHighScoreRecord} from '$/high-scores';
 import {MovementManager} from '$/movement-manager';
 import type {AttackMoveInput} from '$/types';
 import {NotationSequence} from '$/ui/NotationSequence';
@@ -144,7 +145,18 @@ export function Trainer() {
     }
   }, [animationData, isWaitingForAllButtonUp, moveIndex, movesSequence.move, movesSequence.strictLoop, playAnimation, trainingSessionState]);
 
+  const saveHighScore = useCallback(() => {
+    if (totalSequencesCount) {
+      saveHighScoreRecord(selectedSequenceKey, {correct: correctSequencesCount, total: totalSequencesCount});
+    }
+  }, [selectedSequenceKey, correctSequencesCount, totalSequencesCount]);
+  const saveHighScoreRef = useRef(saveHighScore);
+  useEffect(() => {
+    saveHighScoreRef.current = saveHighScore;
+  }, [saveHighScore]);
+
   const handleStop = useCallback(() => {
+    saveHighScoreRef.current();
     setMoveIndex(0);
     setCorrectSequencesCount(0);
     setTotalSequencesCount(0);
@@ -153,6 +165,7 @@ export function Trainer() {
   }, []);
 
   const handleReset = useCallback(() => {
+    saveHighScoreRef.current();
     setMoveIndex(0);
     setCorrectSequencesCount(0);
     setTotalSequencesCount(0);
@@ -189,6 +202,18 @@ export function Trainer() {
       movementManager.unsubscribeFromMove(onMoveChange);
     }
   }, []);
+
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      saveHighScoreRef.current();
+    };
+
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload);
+    }
+  }, [])
 
   return (
     <div className={styles.container}>
@@ -233,6 +258,8 @@ export function Trainer() {
       </div>
 
       <NotationItemsList className={styles.commandsList} items={commandHistory} />
+
+      <HighScoresList sequenceKey={selectedSequenceKey} />
 
       {gamepads.length ? (
         <div className={styles.controllersSection}>

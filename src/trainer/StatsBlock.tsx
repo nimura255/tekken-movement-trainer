@@ -1,5 +1,7 @@
-import styles from "$/trainer/Trainer.module.css";
-import {classNames} from "$/utils/classNames.ts";
+import { classNames } from '$/utils/classNames';
+import { calcTrainingAccuracy } from '$/utils/training-stats';
+
+import styles from './Trainer.module.css';
 
 type StatsBlockProps = {
   total: number;
@@ -7,7 +9,7 @@ type StatsBlockProps = {
 }
 
 export function StatsBlock({correct, total}: StatsBlockProps) {
-  const accuracy = calcAccuracy(correct, total);
+  const accuracy = calcTrainingAccuracy(correct, total);
 
   return (
     <div className={styles.statsContainer}>
@@ -30,10 +32,4 @@ export function StatsBlock({correct, total}: StatsBlockProps) {
   );
 }
 
-function calcAccuracy(correct: number, total: number) {
-  if (!total) {
-    return 100;
-  }
 
-  return Math.trunc((correct / total) * 100);
-}

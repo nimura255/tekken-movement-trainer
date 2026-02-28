@@ -1,0 +1,24 @@
+.placeholder {
+  padding: 10px;
+}
+
+.listContainer {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.listItem {
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  flex-grow: 1;
+}

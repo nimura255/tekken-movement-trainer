@@ -1,3 +1,5 @@
+import { Button } from '$/ui/Button';
+
 type PlaybackButtonsProps = {
   trainerState: 'idle' | 'paused' | 'running';
   onStart: () => void;
@@ -18,32 +20,32 @@ export function PlaybackButtons({
   return (
     <>
       {trainerState === 'idle' && (
-        <button onClick={onStart}>
+        <Button onClick={onStart}>
           START
-        </button>
+        </Button>
       )}
 
       {trainerState === 'paused' && (
-        <button onClick={onResume}>
+        <Button onClick={onResume}>
           RESUME
-        </button>
+        </Button>
       )}
 
       {trainerState === 'running' && (
-        <button onClick={onPause}>
+        <Button onClick={onPause}>
           PAUSE
-        </button>
+        </Button>
       )}
 
       {trainerState !== 'idle' && (
         <>
-          <button onClick={onReset}>
+          <Button onClick={onReset}>
             RESET
-          </button>
+          </Button>
 
-          <button onClick={onStop}>
+          <Button onClick={onStop}>
             STOP
-          </button>
+          </Button>
         </>
       )}
     </>
