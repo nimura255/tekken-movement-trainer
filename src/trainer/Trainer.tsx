@@ -38,8 +38,8 @@ const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> =
   {key: MovementSequenceKey.WaveDashLeft, title: 'Wavedash (Left)'},
   {key: MovementSequenceKey.WaveDashRight, title: 'Wavedash (Right)'},
   {key: MovementSequenceKey.WgfLeft, title: 'Wind God Fist (Left)'},
-  {key: MovementSequenceKey.EwgfLeft, title: 'Electric Wind God Fist (Left)'},
   {key: MovementSequenceKey.WgfRight, title: 'Wind God Fist (Right)'},
+  {key: MovementSequenceKey.EwgfLeft, title: 'Electric Wind God Fist (Left)'},
   {key: MovementSequenceKey.EwgfRight, title: 'Electric Wind God Fist (Right)'}
 ];
 
