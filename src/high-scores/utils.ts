@@ -1,6 +1,6 @@
 import { EventEmitter } from '$/event-emitter';
 import { calcTrainingAccuracy } from '$/utils/training-stats';
-import { localStorageKeyPrefix } from './constants';
+import { localStorageKeyPrefix } from '$/constants';
 import type { HighScoresListItem } from './types';
 
 export const localStorageEventEmitter = new EventEmitter<HighScoresListItem[]>();

@@ -1,7 +1,7 @@
 import {useEffect, useRef, useCallback, useState, useMemo, type ChangeEvent} from 'react';
-import {ControlsManager} from '$/controls-manager';
+import { ControlsManager } from '$/controls/controls-manager';
+import { useControlsConfigurationContext } from '$/controls/controls-configuration';
 import {HighScoresList, saveHighScoreRecord} from '$/high-scores';
-import {MovementManager} from '$/movement-manager';
 import type {AttackMoveInput} from '$/types';
 import {NotationSequence} from '$/ui/NotationSequence';
 import {NotationItemsList} from '$/ui/NotationItemsList';
@@ -47,7 +47,7 @@ const movementSequencesMetas: Array<{key: MovementSequenceKey, title: string}> =
 const SelectedSequenceSessionsStorageKey = 'SelectedSequenceSessionsStorageKey';
 
 export function Trainer() {
-  const movementManagerRef = useRef(new MovementManager());
+  const controlsConfiguration = useControlsConfigurationContext();
   const [moveIndex, setMoveIndex] = useState(0);
   const [correctSequencesCount, setCorrectSequencesCount] = useState(0);
   const [totalSequencesCount, setTotalSequencesCount] = useState(0);
@@ -185,23 +185,20 @@ export function Trainer() {
   }, [handleMoveChange]);
 
   useEffect(() => {
-    const movementManager = movementManagerRef.current;
-    const controlsManager = new ControlsManager({movementManager});
+    const controlsManager = new ControlsManager(controlsConfiguration);
 
     const onMoveChange = (move: AttackMoveInput) => {
       handleMoveChangeRef.current(move);
     };
 
-    movementManager.init();
     controlsManager.init();
-    movementManager.subscribeToMove(onMoveChange);
+    controlsManager.subscribeToMovement(onMoveChange);
 
     return () => {
-      movementManager.terminate();
-      controlsManager.terminate()
-      movementManager.unsubscribeFromMove(onMoveChange);
+      controlsManager.unsubscribeFromMovement(onMoveChange);
+      controlsManager.terminate();
     }
-  }, []);
+  }, [controlsConfiguration]);
 
   useEffect(() => {
     const onBeforeUnload = () => {

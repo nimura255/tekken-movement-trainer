@@ -1,0 +1,10 @@
+.openSettingsButton {
+  position: fixed;
+  inset-block-end: 20px;
+  inset-inline-end: 20px;
+}
+
+.settingsMenuContainer {
+  min-width: 300px;
+  padding: 10px;
+}
